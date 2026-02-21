@@ -1,0 +1,16 @@
+{
+    "manifest_version": 3,
+    "name": "Auto Screenshot",
+    "version": "1.0.0",
+    "background": {
+        "service_worker": "service_worker.js"
+    },
+    "permissions": [
+        "tabs",
+        "alarms"
+    ],
+    "host_permissions": [
+        "<all_urls>",
+        "http://localhost:6969/*"
+    ]
+}
