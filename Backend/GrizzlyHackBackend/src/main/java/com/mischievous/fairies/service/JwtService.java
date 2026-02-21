@@ -1,4 +1,4 @@
-package com.mischievous.fairies.security.service;
+package com.mischievous.fairies.service;
 
 import com.mischievous.fairies.security.model.JwtUser;
 import io.jsonwebtoken.Claims;
