@@ -6,5 +6,4 @@ import lombok.Data;
 public class JwtUser {
     private Long id;
     private String username;
-    private String role;
 }

@@ -47,7 +47,6 @@ public class JwtService {
         JwtUser jwtUser = new JwtUser();
         jwtUser.setId(Integer.toUnsignedLong((Integer) userMap.get("id")));
         jwtUser.setUsername((String) userMap.get("username"));
-        jwtUser.setRole((String) userMap.get("role"));
         return jwtUser;
     }
 
