@@ -1,0 +1,85 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, Arial;
+    background: #0b1114;
+    color: #e8f0f2;
+}
+
+.wrap {
+    width: 320px;
+    padding: 14px;
+}
+
+h2 {
+    margin: 0 0 10px;
+    font-size: 18px;
+}
+
+.card {
+    border: 1px solid #20343d;
+    border-radius: 12px;
+    padding: 12px;
+    background: #0f171b;
+}
+
+.radio {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #20343d;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.radio input {
+    margin-top: 4px;
+}
+
+.title {
+    font-weight: 700;
+}
+
+.muted {
+    color: #9bb2bb;
+    font-size: 12px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 2px 0;
+}
+
+select {
+    background: #0b1114;
+    color: #e8f0f2;
+    border: 1px solid #20343d;
+    border-radius: 8px;
+    padding: 6px 8px;
+}
+
+.btn {
+    width: 100%;
+    margin-top: 12px;
+    border: 1px solid #2c5563;
+    background: #102027;
+    color: #e8f0f2;
+    border-radius: 12px;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.status {
+    margin-top: 10px;
+    min-height: 16px;
+    color: #9bb2bb;
+    font-size: 12px;
+}

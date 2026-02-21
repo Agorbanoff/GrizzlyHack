@@ -2,12 +2,19 @@
     "manifest_version": 3,
     "name": "Checkpoint Extension",
     "version": "1.0.0",
+    "action": {
+        "default_title": "Checkpoint",
+        "default_popup": "popup.html"
+    },
     "background": {
         "service_worker": "service_worker.js"
     },
     "permissions": [
         "tabs",
-        "alarms"
+        "alarms",
+        "storage",
+        "notifications",
+        "activeTab"
     ],
     "host_permissions": [
         "<all_urls>",
