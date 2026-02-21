@@ -1,4 +1,4 @@
-package com.mischievous.fairies.model;
+package com.mischievous.fairies.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
