@@ -19,6 +19,6 @@ public class CheckpointEntity {
     private SessionEntity session;
 
     @OneToMany(mappedBy = "checkpoint", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ScreenShotEntity> screenshots = new ArrayList<>();
+    private List<ScreenshotEntity> screenshots = new ArrayList<>();
 
 }

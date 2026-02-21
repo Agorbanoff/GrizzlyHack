@@ -8,7 +8,7 @@ import java.time.Instant;
 @Entity
 @Table(name = "screenshots")
 @Data
-public class ScreenShotEntity {
+public class ScreenshotEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
