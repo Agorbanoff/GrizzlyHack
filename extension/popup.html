@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Checkpoint</title>
+    <link rel="stylesheet" href="popup.css" />
+</head>
+
+<body>
+    <div class="wrap">
+        <h2>Checkpoints</h2>
+
+        <div class="card">
+            <label class="radio">
+                <input type="radio" name="mode" value="auto" />
+                <div>
+                    <div class="title">Automatic</div>
+                    <div class="muted">Sends a screenshot every 5 minutes</div>
+                </div>
+            </label>
+
+            <label class="radio">
+                <input type="radio" name="mode" value="manual" />
+                <div>
+                    <div class="title">Manual + reminders</div>
+                    <div class="muted">No auto screenshots. Reminder notifications.</div>
+                </div>
+            </label>
+
+            <div class="row">
+                <span class="muted">Remind every</span>
+                <select id="reminderMinutes">
+                    <option value="5">5 min</option>
+                    <option value="10">10 min</option>
+                    <option value="15">15 min</option>
+                    <option value="30">30 min</option>
+                    <option value="60">60 min</option>
+                </select>
+            </div>
+        </div>
+
+        <button id="takeNow" class="btn">Take checkpoint now</button>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>

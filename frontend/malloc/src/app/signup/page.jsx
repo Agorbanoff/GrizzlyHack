@@ -38,26 +38,18 @@ function SignUp() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
-      console.log("Sign Up submitted", { username, password });
       fetch("http://localhost:6969/signup", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Sign Up failed");
-        } return res.json();
-      })
-      .then((data) => {
-        console.log("Sign Up successful:", data);
-      })
-      .catch((err) => {
-        console.error("Error during sign up:", err);
-      });
-      // Clear form
+        .then((res) => {
+          if (!res.ok) throw new Error("Sign Up failed");
+          return res.json();
+        })
+        .then((data) => console.log("Sign Up successful:", data))
+        .catch((err) => console.error("Error during sign up:", err));
+
       setUsername("");
       setPassword("");
       setPasswordConfirm("");
@@ -66,67 +58,69 @@ function SignUp() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-sm mx-auto mt-20 p-8 bg-gray-900 rounded-2xl shadow-xl border border-gray-700"
-    >
-      <h2 className="text-2xl font-bold text-white mb-6 text-center">
-        Create an Account
-      </h2>
-
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="w-full p-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-        {errors.username && (
-          <p className="text-red-500 text-sm mt-1">{errors.username}</p>
-        )}
-      </div>
-
-      <div className="mb-4">
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-        {errors.password && (
-          <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-        )}
-      </div>
-
-      <div className="mb-6">
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          value={passwordConfirm}
-          onChange={(e) => setPasswordConfirm(e.target.value)}
-          className="w-full p-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-        {errors.passwordConfirm && (
-          <p className="text-red-500 text-sm mt-1">{errors.passwordConfirm}</p>
-        )}
-      </div>
-
-      <button
-        type="submit"
-        className="w-full bg-indigo-600 hover:bg-indigo-700 transition-colors text-white font-normal py-3 rounded-lg shadow-md cursor-pointer"
+    <div className="min-h-screen bg-background text-foreground flex items-start justify-center px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-sm mt-20 p-8 bg-surface rounded-2xl shadow-xl border border-border"
       >
-        Sign Up
-      </button>
+        <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
+          Create an Account
+        </h2>
 
-      <p className="text-gray-400 text-sm text-center mt-4">
-        Already have an account?{" "}
-        <Link href="/login" className="text-indigo-500 font-medium hover:underline">
-          Login here
-        </Link>
-      </p>
-    </form>
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full p-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          {errors.username && (
+            <p className="text-accent text-sm mt-1">{errors.username}</p>
+          )}
+        </div>
+
+        <div className="mb-4">
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          {errors.password && (
+            <p className="text-accent text-sm mt-1">{errors.password}</p>
+          )}
+        </div>
+
+        <div className="mb-6">
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={passwordConfirm}
+            onChange={(e) => setPasswordConfirm(e.target.value)}
+            className="w-full p-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          {errors.passwordConfirm && (
+            <p className="text-accent text-sm mt-1">{errors.passwordConfirm}</p>
+          )}
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-primary hover:bg-primary-hover transition-colors text-white font-normal py-3 rounded-lg shadow-md cursor-pointer"
+        >
+          Sign Up
+        </button>
+
+        <p className="text-muted text-sm text-center mt-4">
+          Already have an account?{" "}
+          <Link href="/login" className="text-primary font-medium hover:underline">
+            Login here
+          </Link>
+        </p>
+      </form>
+    </div>
   );
 }
 
