@@ -3,9 +3,9 @@ async function dataUrlToBlob(dataUrl) {
     return await res.blob();
 }
 
-chrome.action.onClicked.addListener(async (tab) => {
+async function sendCheckpoint(tab) {
     try {
-        const timestamp = new Date().toISOString(); // ISO format
+        const timestamp = new Date().toISOString();
 
         const dataUrl = await chrome.tabs.captureVisibleTab(
             tab.windowId,
@@ -30,8 +30,27 @@ chrome.action.onClicked.addListener(async (tab) => {
             body: form
         });
 
-        console.log("Sent:", response.status);
+        console.log("Checkpoint sent:", response.status);
     } catch (e) {
-        console.error("Failed:", e);
+        console.error("Auto checkpoint failed:", e);
     }
+}
+
+// Create alarm when extension installs
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.alarms.create("checkpoint", { periodInMinutes: 5 });
+});
+
+// Trigger every 5 minutes
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+    if (alarm.name !== "checkpoint") return;
+
+    const [tab] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true
+    });
+
+    if (!tab || !tab.windowId) return;
+
+    sendCheckpoint(tab);
 });
