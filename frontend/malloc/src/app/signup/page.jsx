@@ -4,7 +4,6 @@ import Link from "next/link";
 
 function SignUp() {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [errors, setErrors] = useState({});
@@ -16,13 +15,6 @@ function SignUp() {
       newErrors.username = "Username is required";
     } else if (username.length < 3) {
       newErrors.username = "Username must be at least 3 characters";
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) {
-      newErrors.email = "Email is required";
-    } else if (!emailRegex.test(email)) {
-      newErrors.email = "Invalid email format";
     }
 
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
@@ -46,18 +38,34 @@ function SignUp() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
-      console.log("Sign Up submitted", { username, email, password });
-
+      console.log("Sign Up submitted", { username, password });
+      fetch("http://localhost:6969/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Sign Up failed");
+        } return res.json();
+      })
+      .then((data) => {
+        console.log("Sign Up successful:", data);
+      })
+      .catch((err) => {
+        console.error("Error during sign up:", err);
+      });
       // Clear form
       setUsername("");
-      setEmail("");
       setPassword("");
       setPasswordConfirm("");
       setErrors({});
     }
   };
 
-  return  (
+  return (
     <form
       onSubmit={handleSubmit}
       className="max-w-sm mx-auto mt-20 p-8 bg-gray-900 rounded-2xl shadow-xl border border-gray-700"
@@ -76,19 +84,6 @@ function SignUp() {
         />
         {errors.username && (
           <p className="text-red-500 text-sm mt-1">{errors.username}</p>
-        )}
-      </div>
-
-      <div className="mb-4">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-        {errors.email && (
-          <p className="text-red-500 text-sm mt-1">{errors.email}</p>
         )}
       </div>
 
