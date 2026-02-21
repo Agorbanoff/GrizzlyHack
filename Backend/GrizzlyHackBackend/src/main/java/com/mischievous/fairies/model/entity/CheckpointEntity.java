@@ -3,6 +3,9 @@ package com.mischievous.fairies.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "checkpoints")
 @Data
@@ -13,5 +16,9 @@ public class CheckpointEntity {
 
     @ManyToOne
     @JoinColumn(name = "session_id", referencedColumnName = "id", nullable = false)
-    private BrowsingSessionEntity session;
+    private SessionEntity session;
+
+    @OneToMany(mappedBy = "checkpoint", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ScreenShotEntity> screenshots = new ArrayList<>();
+
 }

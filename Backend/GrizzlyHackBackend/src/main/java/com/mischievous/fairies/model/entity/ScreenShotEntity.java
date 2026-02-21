@@ -1,6 +1,5 @@
 package com.mischievous.fairies.model.entity;
 
-import com.mischievous.fairies.model.CheckpointEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 

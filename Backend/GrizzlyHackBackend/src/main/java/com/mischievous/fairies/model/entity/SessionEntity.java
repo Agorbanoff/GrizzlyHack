@@ -7,7 +7,7 @@ import java.time.Instant;
 @Entity
 @Table(name = "browsing_sessions")
 @Data
-public class BrowsingSessionEntity {
+public class SessionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

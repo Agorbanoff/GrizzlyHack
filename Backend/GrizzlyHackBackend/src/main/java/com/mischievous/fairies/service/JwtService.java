@@ -1,4 +1,4 @@
-package com.mischievous.fairies.security.service;
+package com.mischievous.fairies.service;
 
 import com.mischievous.fairies.security.model.JwtUser;
 import io.jsonwebtoken.Claims;
@@ -47,7 +47,6 @@ public class JwtService {
         JwtUser jwtUser = new JwtUser();
         jwtUser.setId(Integer.toUnsignedLong((Integer) userMap.get("id")));
         jwtUser.setUsername((String) userMap.get("username"));
-        jwtUser.setRole((String) userMap.get("role"));
         return jwtUser;
     }
 

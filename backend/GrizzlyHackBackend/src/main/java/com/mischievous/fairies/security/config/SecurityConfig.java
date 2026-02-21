@@ -1,8 +1,7 @@
 package com.mischievous.fairies.security.config;
 
 import com.mischievous.fairies.security.filter.JwtVerificationFilter;
-import com.mischievous.fairies.security.model.CustomUserDetails;
-import com.mischievous.fairies.security.service.CustomUserDetailsService;
+import com.mischievous.fairies.service.CustomUserDetailsService;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.jackson.io.JacksonDeserializer;

@@ -11,7 +11,7 @@ import java.util.List;
 public class CustomUserDetails implements UserDetails {
     private String username;
     private String password;
-    private Collection<String> authorities;
+
 
 
     @Override
