@@ -2,54 +2,112 @@
 <html>
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <link rel="stylesheet" href="popup.css" />
-    <title>Checkpoint</title>
+  <meta charset="utf-8" />
+  <meta name="color-scheme" content="dark light" />
+  <link rel="stylesheet" href="popup.css" />
 </head>
 
 <body>
-    <div class="wrap">
-        <h2>Checkpoint</h2>
+  <div class="app">
 
-        <div class="card">
-            <label class="radio">
-                <input type="radio" name="mode" value="auto" />
-                <div>
-                    <div class="title">Automatic</div>
-                    <div class="muted">Every 5 minutes</div>
-                </div>
-            </label>
+    <header class="top">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <div class="brandTitle">Checkpoint</div>
+          <div class="brandSub">Session tracker</div>
+        </div>
+      </div>
+      <div id="pill" class="pill pill--off">Offline</div>
+    </header>
 
-            <label class="radio">
-                <input type="radio" name="mode" value="manual" />
-                <div>
-                    <div class="title">Manual + reminders</div>
-                    <div class="muted">No auto screenshots</div>
-                </div>
-            </label>
+    <div id="status" class="status"></div>
 
-            <div class="row">
-                <span class="muted">Remind every</span>
-                <select id="reminderMinutes">
-                    <option value="5">5 min</option>
-                    <option value="10">10 min</option>
-                    <option value="15">15 min</option>
-                    <option value="30">30 min</option>
-                    <option value="60">60 min</option>
-                </select>
-            </div>
+    <!-- LOGIN -->
+    <section id="authBlock" class="card">
+      <div class="cardTitle">Login</div>
+
+      <input id="username" class="input" placeholder="username" />
+      <input id="password" class="input" placeholder="password" type="password" />
+      <button id="btnLogin" class="btn btn--primary">Login + Start session</button>
+    </section>
+
+    <!-- APP -->
+    <section id="appBlock" style="display:none;" class="stack">
+
+      <section class="card">
+        <div class="cardTitle">Status</div>
+
+        <div class="kv">
+          <div>
+            <div class="k">User</div>
+            <div id="who" class="v">-</div>
+          </div>
+          <div>
+            <div class="k">Session</div>
+            <div id="session" class="v">-</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MANUAL CONTROLS -->
+      <section class="card">
+        <div class="cardTitle">Manual</div>
+
+        <input id="manualDesc" class="input" placeholder="Checkpoint description (optional)" />
+
+        <div class="btnRow">
+          <button id="btnShotNow" class="btn btn--secondary">
+            Take screenshot
+          </button>
+          <button id="btnCheckpointNow" class="btn btn--primary">
+            Create checkpoint
+          </button>
+        </div>
+
+        <div class="queueRow">
+          Cached screenshots:
+          <span id="queue">0</span>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="card">
+        <div class="cardTitle">Settings</div>
+
+        <div class="grid">
+          <label>
+            <span>Screenshot (min)</span>
+            <input id="captureEvery" class="input input--tight" />
+          </label>
+
+          <label>
+            <span>Checkpoint (min)</span>
+            <input id="checkpointEvery" class="input input--tight" />
+          </label>
+
+          <label>
+            <span>Shots / checkpoint</span>
+            <input id="shotsPerCheckpoint" class="input input--tight" />
+          </label>
+
+          <label>
+            <span>Reminder (min)</span>
+            <input id="reminderMinutes" class="input input--tight" />
+          </label>
         </div>
 
         <div class="btnRow">
-            <button id="btnShot" class="btn">Take screenshot now</button>
-            <button id="btnCheckpoint" class="btn primary">Make checkpoint now</button>
+          <button id="btnApply" class="btn btn--ghost">Apply</button>
+          <button id="btnStartSession" class="btn btn--secondary">Start</button>
+          <button id="btnEndSession" class="btn btn--danger">End</button>
         </div>
+      </section>
 
-        <div id="status" class="status"></div>
-    </div>
+    </section>
+  </div>
 
-    <script src="popup.js"></script>
+  <script src="popup.js"></script>
 </body>
 
 </html>

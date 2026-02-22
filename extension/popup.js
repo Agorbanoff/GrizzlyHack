@@ -1,54 +1,157 @@
-const DEFAULTS = { mode: "manual", reminderMinutes: 15 };
+const API = "http://localhost:6969";
 
-function setStatus(t) {
-    document.getElementById("status").textContent = t || "";
+function $(id) {
+    return document.getElementById(id);
 }
 
-function toggleReminderSelect(mode) {
-    document.getElementById("reminderMinutes").disabled = mode !== "manual";
+function setStatus(msg) {
+    $("status").textContent = msg || "";
 }
 
-async function load() {
-    const st = await chrome.storage.local.get(DEFAULTS);
-
-    const radio = document.querySelector(`input[name="mode"][value="${st.mode}"]`);
-    if (radio) radio.checked = true;
-
-    document.getElementById("reminderMinutes").value = String(st.reminderMinutes);
-    toggleReminderSelect(st.mode);
-
-    setStatus("Ready");
+async function sw(msg) {
+    return await chrome.runtime.sendMessage(msg);
 }
 
-async function saveAndApply(patch) {
-    await chrome.storage.local.set(patch);
-    const st = await chrome.storage.local.get(DEFAULTS);
-    toggleReminderSelect(st.mode);
-
-    const res = await chrome.runtime.sendMessage({ type: "APPLY_SCHEDULES" });
-    if (!res?.ok) setStatus(`Apply failed: ${res?.error || "unknown"}`);
-    else setStatus("Saved");
+async function apiFetch(path, init = {}) {
+    const r = await fetch(`${API}${path}`, {
+        ...init,
+        credentials: "include"
+    });
+    const text = await r.text().catch(() => "");
+    return { r, text };
 }
 
-document.addEventListener("change", (e) => {
-    const t = e.target;
+async function login(username, password) {
+    const { r, text } = await apiFetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+    });
+    if (!r.ok) throw new Error(`login failed: ${r.status} ${text}`);
+}
 
-    if (t && t.name === "mode") saveAndApply({ mode: t.value });
-    if (t && t.id === "reminderMinutes") saveAndApply({ reminderMinutes: Number(t.value) });
+async function startSession() {
+    const { r, text } = await apiFetch("/sessions/start", { method: "POST" });
+    if (!r.ok) throw new Error(`sessions/start failed: ${r.status} ${text}`);
+    const data = JSON.parse(text || "{}");
+    await chrome.storage.local.set({ sessionId: data.sessionId });
+    return data.sessionId;
+}
+
+async function me() {
+    const { r, text } = await apiFetch("/me");
+    if (!r.ok) return null;
+    return JSON.parse(text || "null");
+}
+
+async function refreshQueue() {
+    const res = await sw({ type: "GET_QUEUE_COUNT" });
+    $("queue").textContent = res?.ok ? res.count : 0;
+}
+
+async function updateUi() {
+    const user = await me();
+    const { sessionId } = await chrome.storage.local.get({ sessionId: null });
+
+    $("authBlock").style.display = user ? "none" : "block";
+    $("appBlock").style.display = user ? "block" : "none";
+
+    if (user) {
+        $("who").textContent = user.username || "Logged in";
+        $("session").textContent = sessionId || "-";
+    }
+
+    const pill = $("pill");
+    if (user) {
+        pill.textContent = sessionId ? "Online" : "Logged in";
+        pill.className = sessionId ? "pill pill--on" : "pill";
+    } else {
+        pill.textContent = "Offline";
+        pill.className = "pill pill--off";
+    }
+
+    await refreshQueue();
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+    $("btnLogin").onclick = async () => {
+        try {
+            setStatus("Logging in...");
+            await login($("username").value, $("password").value);
+            const id = await startSession();
+            setStatus(`Session #${id}`);
+            await updateUi();
+        } catch (e) {
+            setStatus(e.message);
+        }
+    };
+
+    $("btnShotNow").onclick = async () => {
+        try {
+            setStatus("Capturing...");
+            const res = await sw({ type: "CAPTURE_NOW" });
+            if (!res.ok) throw new Error(res.error);
+            setStatus("Screenshot cached");
+            await refreshQueue();
+        } catch (e) {
+            setStatus(e.message);
+        }
+    };
+
+    $("btnCheckpointNow").onclick = async () => {
+        try {
+            setStatus("Creating checkpoint...");
+            const desc = $("manualDesc").value || "";
+            const res = await sw({
+                type: "MANUAL_CHECKPOINT_NOW",
+                description: desc
+            });
+            if (!res.ok) throw new Error(res.error);
+            setStatus(`Checkpoint #${res.checkpointId}`);
+            $("manualDesc").value = "";
+            await refreshQueue();
+        } catch (e) {
+            setStatus(e.message);
+        }
+    };
+
+    $("btnStartSession").onclick = async () => {
+        try {
+            const id = await startSession();
+            setStatus(`Session #${id}`);
+            await updateUi();
+        } catch (e) {
+            setStatus(e.message);
+        }
+    };
+
+    $("btnEndSession").onclick = async () => {
+        try {
+            const { sessionId } = await chrome.storage.local.get({ sessionId: null });
+            if (!sessionId) return setStatus("No active session");
+            await fetch(`${API}/sessions/end/${sessionId}`, {
+                method: "POST",
+                credentials: "include"
+            });
+            await chrome.storage.local.set({ sessionId: null });
+            setStatus("Session ended");
+            await updateUi();
+        } catch (e) {
+            setStatus(e.message);
+        }
+    };
+
+    $("btnApply").onclick = async () => {
+        await chrome.storage.local.set({
+            captureEveryMinutes: Number($("captureEvery").value || 2),
+            checkpointEveryMinutes: Number($("checkpointEvery").value || 5),
+            shotsPerCheckpoint: Number($("shotsPerCheckpoint").value || 2),
+            reminderMinutes: Number($("reminderMinutes").value || 15)
+        });
+        await sw({ type: "APPLY" });
+        setStatus("Settings applied");
+    };
+
+    await updateUi();
 });
-
-document.getElementById("btnShot").addEventListener("click", async () => {
-    setStatus("Taking screenshot...");
-    const res = await chrome.runtime.sendMessage({ type: "TAKE_SCREENSHOT_NOW" });
-    if (res?.ok) setStatus(`Screenshot uploaded (checkpoint_id=${res.checkpointId})`);
-    else setStatus(`Screenshot failed: ${res?.error || "unknown"}`);
-});
-
-document.getElementById("btnCheckpoint").addEventListener("click", async () => {
-    setStatus("Creating checkpoint...");
-    const res = await chrome.runtime.sendMessage({ type: "MAKE_CHECKPOINT_NOW" });
-    if (res?.ok) setStatus(`Checkpoint ${res.checkpointId} + screenshot uploaded`);
-    else setStatus(`Checkpoint failed: ${res?.error || "unknown"}`);
-});
-
-load();
