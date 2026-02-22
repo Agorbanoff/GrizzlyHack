@@ -1,13 +1,15 @@
 package com.mischievous.fairies.service;
 
 import com.mischievous.fairies.model.dto.req.CreateCheckPointReqDto;
+import com.mischievous.fairies.model.dto.req.WebActivityDto;
 import com.mischievous.fairies.model.dto.res.GetCheckpointResDto;
 import com.mischievous.fairies.model.dto.res.PagedResponse;
 import com.mischievous.fairies.model.entity.CheckpointEntity;
 import com.mischievous.fairies.model.entity.SessionEntity;
+import com.mischievous.fairies.model.entity.WebActivityEntity;
 import com.mischievous.fairies.repository.CheckpointRepository;
-import com.mischievous.fairies.repository.ScreenshotRepository;
 import com.mischievous.fairies.repository.SessionRepository;
+import com.mischievous.fairies.repository.WebActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,15 +24,15 @@ import java.util.Optional;
 public class CheckpointService {
     private final CheckpointRepository checkpointRepository;
     private final SessionRepository sessionRepository;
-    private final ScreenshotRepository screenshotRepository;
+    private final WebActivityRepository webActivityRepository;
 
     @Autowired
     public CheckpointService(CheckpointRepository checkpointRepository,
                              SessionRepository sessionRepository,
-                             ScreenshotRepository screenshotRepository) {
+                             WebActivityRepository webActivityRepository) {
         this.checkpointRepository = checkpointRepository;
         this.sessionRepository = sessionRepository;
-        this.screenshotRepository = screenshotRepository;
+        this.webActivityRepository = webActivityRepository;
     }
 
     @Transactional
@@ -42,17 +44,18 @@ public class CheckpointService {
         }
         CheckpointEntity checkpointEntity = new CheckpointEntity();
         checkpointEntity.setSession(sessionEntity);
-        checkpointEntity.setUrl(createCheckPointReqDto.getUrl());
+        checkpointEntity.setDescription(createCheckPointReqDto.getDescription());
         checkpointRepository.save(checkpointEntity);
-
+        for (WebActivityDto webActivityDto : createCheckPointReqDto.getWebActivities()) {
+            WebActivityEntity webActivityEntity = new WebActivityEntity();
+            webActivityEntity.setUrl(webActivityDto.getUrl());
+            webActivityEntity.setHost(webActivityDto.getHost());
+            webActivityEntity.setTitle(webActivityDto.getTitle());
+            webActivityEntity.setTimeSpentMillis(webActivityDto.getTimeSpentMillis());
+            webActivityEntity.setCheckpoint(checkpointEntity);
+            webActivityRepository.save(webActivityEntity);
+        }
         return checkpointEntity.getId();
-    }
-
-    public List<CheckpointEntity> getCheckpointsForSession(Long sessionId, Long userId) {
-        List<CheckpointEntity> checkpoints = checkpointRepository.findBySession_Id(sessionId);
-        // filter to ensure session belongs to user
-        checkpoints.removeIf(c -> !c.getSession().getUser().getId().equals(userId));
-        return checkpoints;
     }
 
     public PagedResponse<GetCheckpointResDto> getCheckpointsForSession(Long sessionId, Long userId, Pageable pageable) {
@@ -62,8 +65,18 @@ public class CheckpointService {
         for (CheckpointEntity checkpointEntity : checkpointEntities.getContent()) {
             GetCheckpointResDto checkpointResDto = new GetCheckpointResDto();
             checkpointResDto.setId(checkpointEntity.getId());
-            checkpointResDto.setUrl(checkpointEntity.getUrl());
             checkpointResDto.setTimestamp(checkpointEntity.getTimestamp());
+            checkpointResDto.setDescription(checkpointEntity.getDescription());
+            List<WebActivityDto> webActivitiesDtos = new ArrayList<>();
+            for (WebActivityEntity webActivityEntity : checkpointEntity.getWebActivities()) {
+                WebActivityDto webActivityDto = new WebActivityDto();
+                webActivityDto.setUrl(webActivityEntity.getUrl());
+                webActivityDto.setHost(webActivityEntity.getHost());
+                webActivityDto.setTitle(webActivityEntity.getTitle());
+                webActivityDto.setTimeSpentMillis(webActivityEntity.getTimeSpentMillis());
+                webActivitiesDtos.add(webActivityDto);
+            }
+            checkpointResDto.setWebActivities(webActivitiesDtos);
             checkpointResDtos.add(checkpointResDto);
         }
         PagedResponse<GetCheckpointResDto> pagedResponse = new PagedResponse<>();
