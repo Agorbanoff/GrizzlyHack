@@ -1,5 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import { Toaster } from "sonner";
+//import { Toaster } from "sonner";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -15,7 +15,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
-        Toaster position="top-right" expand={false} visibleToasts={3}
+        {/*Toaster position="top-right" expand={false} visibleToasts={3}*/}
       </body>
     </html>
   );
