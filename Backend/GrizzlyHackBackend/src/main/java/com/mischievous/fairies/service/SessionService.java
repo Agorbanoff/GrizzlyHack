@@ -45,11 +45,12 @@ public class SessionService {
 
     public void keepAlive(Long sessionId) {
         Optional<SessionEntity> sessionOptional = sessionRepository.findById(sessionId);
-        if (sessionOptional.isPresent()) {
-            SessionEntity session = sessionOptional.get();
-            session.setSessionEnd(Instant.now().plusSeconds(300));
-            sessionRepository.save(session);
+        SessionEntity sessionEntity = sessionOptional.orElseThrow(() -> new IllegalArgumentException("Session not found"));
+        if (sessionEntity.getSessionEnd().isBefore(Instant.now())) {
+            throw new IllegalArgumentException("Session has expired");
         }
+        sessionEntity.setSessionEnd(Instant.now().plusSeconds(300));
+        sessionRepository.save(sessionEntity);
     }
 
 
@@ -73,8 +74,8 @@ public class SessionService {
 
 
     @Transactional
-    public void endSession(Long userId) {
-        Optional<SessionEntity> sessionOptional = sessionRepository.findByUser_IdAndSessionEndIsNull(userId);
+    public void endSession(Long userId, Long id) {
+        Optional<SessionEntity> sessionOptional = sessionRepository.findByUser_IdAndId(userId, id);
         if (sessionOptional.isPresent()) {
             SessionEntity session = sessionOptional.get();
             session.setSessionEnd(Instant.now());
