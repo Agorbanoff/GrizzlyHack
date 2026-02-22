@@ -21,7 +21,7 @@ public class SessionEntity {
     @Column(name = "session_start", nullable = false, updatable = false)
     private Instant sessionStart;
 
-    @Column(name = "session_end", nullable = true, updatable = false)
+    @Column(name = "session_end", nullable = true, updatable = true)
     private Instant sessionEnd;
 
     @OneToMany(mappedBy = "session",

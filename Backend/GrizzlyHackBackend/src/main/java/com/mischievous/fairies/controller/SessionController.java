@@ -37,16 +37,25 @@ public class SessionController {
                 .body(new StartSessionResDto("Session started successfully ", id));
     }
 
-    @PostMapping("/end")
-    public ResponseEntity<Void> endSession(@CookieValue(name = "access_token") String jwt) {
-        sessionService.endSession(jwtService.extractUserData(jwt).getId());
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    @PostMapping("/end/{id}")
+    public ResponseEntity<Void> endSession(@PathVariable(name = "id") Long id,
+                                           @CookieValue(name = "access_token") String jwt) {
+        try {
+            sessionService.endSession(jwtService.extractUserData(jwt).getId(), id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Void> keepAlive(@PathVariable("id") Long id) {
-        sessionService.keepAlive(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        try {
+            sessionService.keepAlive(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     @GetMapping()

@@ -16,7 +16,13 @@ public class CheckpointEntity {
     private Long id;
 
     @Column
+    private String title;
+
+    @Column
     private String url;
+
+    @Column(length = 2000)
+    private String description;
 
     @Column
     private Instant timestamp;
