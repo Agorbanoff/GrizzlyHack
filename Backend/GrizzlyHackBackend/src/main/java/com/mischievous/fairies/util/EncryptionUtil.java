@@ -20,13 +20,12 @@ public class EncryptionUtil {
     private final SecretKeySpec keySpec;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public EncryptionUtil(@Value("${ENCRYPTION_KEY_B64}") String keyB64) {
+    public EncryptionUtil(@Value("${encryption.key}") String keyB64) {
         byte[] key = Base64.getDecoder().decode(keyB64);
         if (key.length != 32) throw new IllegalArgumentException("ENCRYPTION_KEY_B64 must decode to 32 bytes");
         this.keySpec = new SecretKeySpec(key, "AES");
     }
 
-    // ---- NEW: byte[] encryption (optionally binds to AAD) ----
 
     public byte[] encryptBytes(byte[] plaintext) {
         return encryptBytes(plaintext, null);
@@ -79,7 +78,6 @@ public class EncryptionUtil {
         }
     }
 
-    // ---- Keep existing String methods (same concept) ----
 
     public String encrypt(String plaintext) {
         byte[] pt = plaintext.getBytes(StandardCharsets.UTF_8);
