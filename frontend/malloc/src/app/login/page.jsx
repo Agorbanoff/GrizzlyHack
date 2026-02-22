@@ -25,10 +25,21 @@ function Login() {
       body: JSON.stringify({ username, password }),
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Login failed");
-        return res.json();
+        if (!res.ok){ 
+          console.error("Login failed:", res.status, res.statusText);
+          throw new Error("Login failed");
+        }  
+        console.log("Login response status:", res.status);
+        console.log("Login response headers:", res.headers);
+        console.log("Login response body:", res.body);
+        return res.text();
       })
-      .then((data) => console.log("Login successful:", data))
+      .then((data) => {
+        console.log("Login response:", data);
+        if (data === "Login successful!") {
+          // window.location.href = "/dashboard";
+        }
+      })
       .catch((err) => console.error("Error during login:", err));
   };
 
