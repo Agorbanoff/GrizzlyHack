@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
 public class StartSessionResDto {
     private String message;
     private Long sessionId;

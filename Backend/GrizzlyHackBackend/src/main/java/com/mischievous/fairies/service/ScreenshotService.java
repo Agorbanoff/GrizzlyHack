@@ -1,5 +1,6 @@
 package com.mischievous.fairies.service;
 
+import com.mischievous.fairies.model.dto.res.ScreenshotResDto;
 import com.mischievous.fairies.model.entity.CheckpointEntity;
 import com.mischievous.fairies.model.entity.ScreenshotEntity;
 import com.mischievous.fairies.repository.CheckpointRepository;
@@ -85,7 +86,7 @@ public class ScreenshotService {
         return new UrlResource(path.toUri());
     }
 
-    public List<Long> getScreenshotIdsForCheckpoint(Long checkpointId, Long userId) {
+    public List<ScreenshotResDto> getScreenshotIdsForCheckpoint(Long checkpointId, Long userId) {
         Optional<CheckpointEntity> checkpointEntityOptional = checkpointRepository.findById(checkpointId);
         if (!checkpointEntityOptional.isPresent()) {
             throw new IllegalArgumentException("Checkpoint not found");
@@ -95,11 +96,13 @@ public class ScreenshotService {
             throw new IllegalArgumentException("Not allowed");
         }
         List<ScreenshotEntity> screenshots = screenshotRepository.findAllByCheckpoint_Id(checkpointId);
-        List<Long> screenshotIds = new ArrayList<>();
+        List<ScreenshotResDto> screenshotResDtos = new ArrayList<>();
         for (ScreenshotEntity screenshotEntity : screenshots) {
-            screenshotIds.add(screenshotEntity.getId());
+            ScreenshotResDto screenshotResDto = new ScreenshotResDto();
+            screenshotResDto.setId(screenshotEntity.getId());
+            screenshotResDtos.add(screenshotResDto);
         }
-        return  screenshotIds;
+        return  screenshotResDtos;
     }
 
     @Transactional
