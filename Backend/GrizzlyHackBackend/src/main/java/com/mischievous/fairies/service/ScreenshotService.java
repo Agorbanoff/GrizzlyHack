@@ -5,16 +5,14 @@ import com.mischievous.fairies.model.entity.CheckpointEntity;
 import com.mischievous.fairies.model.entity.ScreenshotEntity;
 import com.mischievous.fairies.repository.CheckpointRepository;
 import com.mischievous.fairies.repository.ScreenshotRepository;
+import com.mischievous.fairies.util.EncryptionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,6 +25,7 @@ import java.util.Optional;
 public class ScreenshotService {
     private final ScreenshotRepository screenshotRepository;
     private final CheckpointRepository checkpointRepository;
+    private final EncryptionUtil encryptionUtil;
 
     private final Path storageRoot =
             Paths.get("./grizzly/files").toAbsolutePath().normalize();
@@ -34,9 +33,11 @@ public class ScreenshotService {
 
     @Autowired
     public ScreenshotService(ScreenshotRepository screenshotRepository,
-                             CheckpointRepository checkpointRepository) {
+                             CheckpointRepository checkpointRepository,
+                             EncryptionUtil encryptionUtil) {
         this.screenshotRepository = screenshotRepository;
         this.checkpointRepository = checkpointRepository;
+        this.encryptionUtil = encryptionUtil;
     }
 
     @Transactional
@@ -60,30 +61,44 @@ public class ScreenshotService {
 
     private void saveFile(MultipartFile file, String filename) throws IOException {
         byte[] bytes = file.getBytes();
+
+        byte[] encrypted = encryptionUtil.encryptBytes(bytes);
+
         Path filePath = storageRoot.resolve(filename);
         Files.createDirectories(filePath.getParent());
-        Files.write(filePath, bytes);
+        Files.write(filePath, encrypted);
     }
 
-    public Resource getScreenshot(Long checkpointId, Long id, Long userId) throws MalformedURLException {
-        Optional<CheckpointEntity> checkpointEntityOptional = checkpointRepository.findById(checkpointId);
-        if (!checkpointEntityOptional.isPresent()) {
-            throw new IllegalArgumentException("Checkpoint not found");
-        }
-        CheckpointEntity checkpointEntity = checkpointEntityOptional.get();
+    public Resource getScreenshot(Long checkpointId, Long id, Long userId) throws IOException {
+
+        CheckpointEntity checkpointEntity = checkpointRepository.findById(checkpointId)
+                .orElseThrow(() -> new IllegalArgumentException("Checkpoint not found"));
+
         if (!checkpointEntity.getSession().getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("Not allowed");
-        };
-        Optional<ScreenshotEntity> opt = screenshotRepository.findByCheckpoint_IdAndId(checkpointId, id);
-        if (!opt.isPresent()) {
-            throw new IllegalArgumentException("Screenshot not found");
         }
-        ScreenshotEntity screenshotEntity = opt.get();
+
+        ScreenshotEntity screenshotEntity = screenshotRepository
+                .findByCheckpoint_IdAndId(checkpointId, id)
+                .orElseThrow(() -> new IllegalArgumentException("Screenshot not found"));
+
         if (!screenshotEntity.getCheckpoint().getSession().getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("Not allowed");
         }
-        Path path = Paths.get(screenshotEntity.getFilePath()).toAbsolutePath().normalize();
-        return new UrlResource(path.toUri());
+
+        Path path = Paths.get(screenshotEntity.getFilePath())
+                .toAbsolutePath()
+                .normalize();
+
+        byte[] encrypted = Files.readAllBytes(path);
+        byte[] decrypted = encryptionUtil.decryptBytes(encrypted);
+
+        return new org.springframework.core.io.ByteArrayResource(decrypted) {
+            @Override
+            public String getFilename() {
+                return "screenshot-" + id + ".png";
+            }
+        };
     }
 
     public List<ScreenshotResDto> getScreenshotIdsForCheckpoint(Long checkpointId, Long userId) {
@@ -102,16 +117,21 @@ public class ScreenshotService {
             screenshotResDto.setId(screenshotEntity.getId());
             screenshotResDtos.add(screenshotResDto);
         }
-        return  screenshotResDtos;
+        return screenshotResDtos;
     }
 
     @Transactional
     public void deleteScreenshot(Long id, Long userId) throws IOException {
         Optional<ScreenshotEntity> opt = screenshotRepository.findById(id);
         ScreenshotEntity screenshotEntity = opt.orElseThrow(() -> new IllegalArgumentException("Screenshot not found"));
+
         if (!screenshotEntity.getCheckpoint().getSession().getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("Not allowed");
         }
+
+        Path path = Paths.get(screenshotEntity.getFilePath()).toAbsolutePath().normalize();
+
         screenshotRepository.deleteById(id);
+        Files.deleteIfExists(path);
     }
 }

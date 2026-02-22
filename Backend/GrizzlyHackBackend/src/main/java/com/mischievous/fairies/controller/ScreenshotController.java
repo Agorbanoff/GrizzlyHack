@@ -47,8 +47,18 @@ public class ScreenshotController {
                                                   @PathVariable(name = "id") Long id,
                                                   @CookieValue(name = "access_token") String jwt) {
         try {
-            Resource resource = screenshotService.getScreenshot(checkpointId, id, jwtService.extractUserData(jwt).getId());
-            return ResponseEntity.status(HttpStatus.OK).body(resource);
+            Long userId = jwtService.extractUserData(jwt).getId();
+
+            Resource resource = screenshotService.getScreenshot(checkpointId, id, userId);
+
+            return ResponseEntity
+                    .ok()
+                    .header("Content-Disposition", "inline; filename=\"" + (resource.getFilename() != null ? resource.getFilename() : ("screenshot-" + id)) + "\"")
+                    .contentType(org.springframework.http.MediaType.IMAGE_PNG)
+                    .body(resource);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
