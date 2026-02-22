@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "browsing_sessions")
+@Table(name = "sessions")
 @Data
 public class SessionEntity {
     @Id

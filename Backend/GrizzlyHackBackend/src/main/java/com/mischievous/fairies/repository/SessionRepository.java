@@ -18,14 +18,29 @@ public interface SessionRepository extends JpaRepository<SessionEntity, Long> {
     Optional<SessionEntity> findByUser_IdAndSessionEndIsNull(Long userId);
     Optional<SessionEntity> findByUser_IdAndId(Long userId, Long id);
 
+    // Return a limited page of longest sessions (native query). Use LIMIT/OFFSET so Spring won't try to append its own ORDER/BY fragment.
     @Query(value = """
     SELECT *
     FROM sessions s
     WHERE s.user_id = :userId
       AND s.session_start >= :from
     ORDER BY EXTRACT(EPOCH FROM (s.session_end - s.session_start)) DESC
+    LIMIT :limit OFFSET :offset
     """,
             nativeQuery = true)
-    List<SessionEntity> findLongestSessionsSince(@Param("userId") Long userId, @Param("from") Instant from, Pageable pageable
+    List<SessionEntity> findLongestSessionsSince(@Param("userId") Long userId,
+                                                 @Param("from") Instant from,
+                                                 @Param("limit") int limit,
+                                                 @Param("offset") int offset
     );
+
+    // Count query to determine total elements for pagination
+    @Query(value = """
+    SELECT count(*)
+    FROM sessions s
+    WHERE s.user_id = :userId
+      AND s.session_start >= :from
+    """,
+            nativeQuery = true)
+    long countLongestSessionsSince(@Param("userId") Long userId, @Param("from") Instant from);
 }
