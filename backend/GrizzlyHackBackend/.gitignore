@@ -1,6 +1,7 @@
 .DS_Store
 env.properties
 .env
+/grizzly/files/
 .idea/
 target/
 !.mvn/wrapper/maven-wrapper.jar
