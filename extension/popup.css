@@ -83,3 +83,13 @@ select {
     color: #9bb2bb;
     font-size: 12px;
 }
+.btnRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.btn.primary {
+    border-color: #3b8aa3;
+}
