@@ -17,7 +17,12 @@
         "activeTab"
     ],
     "host_permissions": [
-        "<all_urls>",
-        "http://localhost:6969/*"
-    ]
+        "http://localhost:6969/*",
+        "<all_urls>"
+    ],
+    "icons": {
+        "16": "icon.png",
+        "48": "icon.png",
+        "128": "icon.png"
+    }
 }

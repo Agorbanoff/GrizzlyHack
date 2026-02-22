@@ -16,14 +16,18 @@ async function load() {
 
     document.getElementById("reminderMinutes").value = String(st.reminderMinutes);
     toggleReminderSelect(st.mode);
+
+    setStatus("Ready");
 }
 
 async function saveAndApply(patch) {
     await chrome.storage.local.set(patch);
     const st = await chrome.storage.local.get(DEFAULTS);
     toggleReminderSelect(st.mode);
-    await chrome.runtime.sendMessage({ type: "APPLY_SCHEDULES" });
-    setStatus("Saved");
+
+    const res = await chrome.runtime.sendMessage({ type: "APPLY_SCHEDULES" });
+    if (!res?.ok) setStatus(`Apply failed: ${res?.error || "unknown"}`);
+    else setStatus("Saved");
 }
 
 document.addEventListener("change", (e) => {
@@ -33,10 +37,18 @@ document.addEventListener("change", (e) => {
     if (t && t.id === "reminderMinutes") saveAndApply({ reminderMinutes: Number(t.value) });
 });
 
-document.getElementById("takeNow").addEventListener("click", async () => {
-    setStatus("Sending...");
-    const res = await chrome.runtime.sendMessage({ type: "TAKE_CHECKPOINT_NOW" });
-    setStatus(res?.ok ? "Sent" : `Failed: ${res?.error || "unknown"}`);
+document.getElementById("btnShot").addEventListener("click", async () => {
+    setStatus("Taking screenshot...");
+    const res = await chrome.runtime.sendMessage({ type: "TAKE_SCREENSHOT_NOW" });
+    if (res?.ok) setStatus(`Screenshot uploaded (checkpoint_id=${res.checkpointId})`);
+    else setStatus(`Screenshot failed: ${res?.error || "unknown"}`);
+});
+
+document.getElementById("btnCheckpoint").addEventListener("click", async () => {
+    setStatus("Creating checkpoint...");
+    const res = await chrome.runtime.sendMessage({ type: "MAKE_CHECKPOINT_NOW" });
+    if (res?.ok) setStatus(`Checkpoint ${res.checkpointId} + screenshot uploaded`);
+    else setStatus(`Checkpoint failed: ${res?.error || "unknown"}`);
 });
 
 load();

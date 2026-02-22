@@ -3,21 +3,21 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Checkpoint</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="stylesheet" href="popup.css" />
+    <title>Checkpoint</title>
 </head>
 
 <body>
     <div class="wrap">
-        <h2>Checkpoints</h2>
+        <h2>Checkpoint</h2>
 
         <div class="card">
             <label class="radio">
                 <input type="radio" name="mode" value="auto" />
                 <div>
                     <div class="title">Automatic</div>
-                    <div class="muted">Sends a screenshot every 5 minutes</div>
+                    <div class="muted">Every 5 minutes</div>
                 </div>
             </label>
 
@@ -25,7 +25,7 @@
                 <input type="radio" name="mode" value="manual" />
                 <div>
                     <div class="title">Manual + reminders</div>
-                    <div class="muted">No auto screenshots. Reminder notifications.</div>
+                    <div class="muted">No auto screenshots</div>
                 </div>
             </label>
 
@@ -41,7 +41,10 @@
             </div>
         </div>
 
-        <button id="takeNow" class="btn">Take checkpoint now</button>
+        <div class="btnRow">
+            <button id="btnShot" class="btn">Take screenshot now</button>
+            <button id="btnCheckpoint" class="btn primary">Make checkpoint now</button>
+        </div>
 
         <div id="status" class="status"></div>
     </div>
