@@ -27,7 +27,9 @@ public class ScreenshotService {
     private final ScreenshotRepository screenshotRepository;
     private final CheckpointRepository checkpointRepository;
 
-    private final Path storageRoot = Paths.get("./grizzly/files");
+    private final Path storageRoot =
+            Paths.get("./grizzly/files").toAbsolutePath().normalize();
+
 
     @Autowired
     public ScreenshotService(ScreenshotRepository screenshotRepository,
@@ -76,25 +78,29 @@ public class ScreenshotService {
             throw new IllegalArgumentException("Screenshot not found");
         }
         ScreenshotEntity screenshotEntity = opt.get();
-        if (screenshotEntity.getCheckpoint().getSession().getUser().getId().equals(userId)) {
+        if (!screenshotEntity.getCheckpoint().getSession().getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("Not allowed");
         }
-        return new UrlResource(URI.create(screenshotEntity.getFilePath()));
+        Path path = Paths.get(screenshotEntity.getFilePath()).toAbsolutePath().normalize();
+        return new UrlResource(path.toUri());
     }
 
-//    public List<Long> getScreenshotIdsForCheckpoint(Long checkpointId, Long userId) {
-//        Optional<CheckpointEntity> checkpointEntityOptional = checkpointRepository.findById(checkpointId);
-//        if (!checkpointEntityOptional.isPresent()) {
-//            throw new IllegalArgumentException("Checkpoint not found");
-//        }
-//        CheckpointEntity checkpointEntity = checkpointEntityOptional.get();
-//        if (!checkpointEntity.getSession().getUser().getId().equals(userId)) {
-//            throw new IllegalArgumentException("Not allowed");
-//        }
-//        List<ScreenshotEntity> screenshots = screenshotRepository.findAllByCheckpoint_Id(checkpointId);
-//        List<Long> screenshotIds = new ArrayList<>();
-//
-//    }
+    public List<Long> getScreenshotIdsForCheckpoint(Long checkpointId, Long userId) {
+        Optional<CheckpointEntity> checkpointEntityOptional = checkpointRepository.findById(checkpointId);
+        if (!checkpointEntityOptional.isPresent()) {
+            throw new IllegalArgumentException("Checkpoint not found");
+        }
+        CheckpointEntity checkpointEntity = checkpointEntityOptional.get();
+        if (!checkpointEntity.getSession().getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("Not allowed");
+        }
+        List<ScreenshotEntity> screenshots = screenshotRepository.findAllByCheckpoint_Id(checkpointId);
+        List<Long> screenshotIds = new ArrayList<>();
+        for (ScreenshotEntity screenshotEntity : screenshots) {
+            screenshotIds.add(screenshotEntity.getId());
+        }
+        return  screenshotIds;
+    }
 
     @Transactional
     public void deleteScreenshot(Long id, Long userId) throws IOException {

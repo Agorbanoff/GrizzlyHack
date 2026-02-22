@@ -57,11 +57,13 @@ public class ScreenshotController {
         }
     }
 
-//    @GetMapping("/{checkpointId}")
-//    public ResponseEntity<List<String>> getScreenshotIds(@PathVariable(name = "checkpointId") Long checkpointId,
-//                                                         @CookieValue(name = "access_token") String jwt) {
-//        screenshotService.
-//    }
+    @GetMapping("/{checkpointId}")
+    public ResponseEntity<List<Long>> getScreenshotIds(@PathVariable(name = "checkpointId") Long checkpointId,
+                                                         @CookieValue(name = "access_token") String jwt) {
+        List<Long> ids =
+                screenshotService.getScreenshotIdsForCheckpoint(checkpointId, jwtService.extractUserData(jwt).getId());
+        return ResponseEntity.status(HttpStatus.OK).body(ids);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteScreenshot(@PathVariable(name = "id") Long id,
