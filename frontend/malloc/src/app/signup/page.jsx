@@ -1,59 +1,81 @@
 "use client";
+
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 function SignUp() {
+  const router = useRouter();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [errors, setErrors] = useState({});
 
-  const validate = () => {
-    const newErrors = {};
-
-    if (!username.trim()) {
-      newErrors.username = "Username is required";
-    } else if (username.length < 3) {
-      newErrors.username = "Username must be at least 3 characters";
-    }
-
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
-    if (!password) {
-      newErrors.password = "Password is required";
-    } else if (!passwordRegex.test(password)) {
-      newErrors.password =
-        "Password must be at least 6 characters and include a number";
-    }
-
-    if (!passwordConfirm) {
-      newErrors.passwordConfirm = "Please confirm your password";
-    } else if (password !== passwordConfirm) {
-      newErrors.passwordConfirm = "Passwords do not match";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      fetch("http://localhost:6969/signup", {
+
+    const u = username.trim();
+    const p = password.trim();
+    const pc = passwordConfirm.trim();
+
+    if (!u || !p || !pc) {
+      toast("Missing fields", {
+        description: "Fill username, password, and confirm password.",
+      });
+      return;
+    }
+
+    if (u.length < 3) {
+      toast("Invalid username", {
+        description: "Username must be at least 3 characters.",
+      });
+      return;
+    }
+
+    if (p !== pc) {
+      toast("Passwords do not match", {
+        description: "Make sure both passwords are the same.",
+      });
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:6969/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error("Sign Up failed");
-          return res.json();
-        })
-        .then((data) => console.log("Sign Up successful:", data))
-        .catch((err) => console.error("Error during sign up:", err));
+        body: JSON.stringify({ username: u, password: p }),
+        credentials: "include",
+      });
 
-      setUsername("");
-      setPassword("");
-      setPasswordConfirm("");
-      setErrors({});
+      if (!res.ok) {
+        toast("Sign up failed", {
+          description: "Try a different username or password.",
+        });
+        return;
+      }
+
+      const text = (await res.text()).trim();
+
+      if (text === "Successfully signed up!") {
+        toast("Account created", {
+          description: "You can now log in.",
+          action: {
+            label: "Login",
+            onClick: () => router.replace("/login"),
+          },
+          duration: 3500,
+        });
+        return;
+      }
+
+      toast("Unexpected response", {
+        description: "Please try again.",
+      });
+    } catch {
+      toast("Network error", {
+        description: "Please try again.",
+      });
     }
   };
 
@@ -75,9 +97,6 @@ function SignUp() {
             onChange={(e) => setUsername(e.target.value)}
             className="w-full p-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary"
           />
-          {errors.username && (
-            <p className="text-accent text-sm mt-1">{errors.username}</p>
-          )}
         </div>
 
         <div className="mb-4">
@@ -88,9 +107,6 @@ function SignUp() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary"
           />
-          {errors.password && (
-            <p className="text-accent text-sm mt-1">{errors.password}</p>
-          )}
         </div>
 
         <div className="mb-6">
@@ -101,9 +117,6 @@ function SignUp() {
             onChange={(e) => setPasswordConfirm(e.target.value)}
             className="w-full p-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary"
           />
-          {errors.passwordConfirm && (
-            <p className="text-accent text-sm mt-1">{errors.passwordConfirm}</p>
-          )}
         </div>
 
         <button

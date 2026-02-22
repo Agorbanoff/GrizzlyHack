@@ -1,46 +1,54 @@
 "use client";
+
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 function Login() {
+  const router = useRouter();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState({});
 
-  const validate = () => {
-    const newErrors = {};
-    if (!username) newErrors.username = "Username is required";
-    if (!password) newErrors.password = "Password is required";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
 
-    fetch("http://localhost:6969/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    })
-      .then((res) => {
-        if (!res.ok){ 
-          console.error("Login failed:", res.status, res.statusText);
-          throw new Error("Login failed");
-        }  
-        console.log("Login response status:", res.status);
-        console.log("Login response headers:", res.headers);
-        console.log("Login response body:", res.body);
-        return res.text();
-      })
-      .then((data) => {
-        console.log("Login response:", data);
-        if (data === "Login successful!") {
-          // window.location.href = "/dashboard";
-        }
-      })
-      .catch((err) => console.error("Error during login:", err));
+    const u = username.trim();
+    const p = password.trim();
+
+    if (!u || !p) {
+      toast.error("Missing fields", {
+        description: "Enter both username and password.",
+      });
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:6969/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: u, password: p }),
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        toast.error("Login failed", {
+          description: "Invalid username or password.",
+        });
+        return;
+      }
+
+      toast.success("Login successful", {
+        description: "Welcome back",
+      });
+
+      router.push("/dashboard");
+    } catch (err) {
+      toast.error("Network error", {
+        description: "Please try again.",
+      });
+    }
   };
 
   return (
@@ -61,9 +69,6 @@ function Login() {
             onChange={(e) => setUsername(e.target.value)}
             className="w-full p-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary"
           />
-          {errors.username && (
-            <p className="text-accent text-sm mt-1">{errors.username}</p>
-          )}
         </div>
 
         <div className="mb-6">
@@ -74,9 +79,6 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary"
           />
-          {errors.password && (
-            <p className="text-accent text-sm mt-1">{errors.password}</p>
-          )}
         </div>
 
         <button
