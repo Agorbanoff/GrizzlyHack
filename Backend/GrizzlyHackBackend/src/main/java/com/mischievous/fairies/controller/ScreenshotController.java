@@ -1,5 +1,5 @@
 package com.mischievous.fairies.controller;
-
+import com.mischievous.fairies.model.dto.res.ScreenshotResDto;
 import com.mischievous.fairies.service.CheckpointService;
 import com.mischievous.fairies.service.JwtService;
 import com.mischievous.fairies.service.ScreenshotService;
@@ -55,11 +55,11 @@ public class ScreenshotController {
     }
 
     @GetMapping("/{checkpointId}")
-    public ResponseEntity<List<Long>> getScreenshotIds(@PathVariable(name = "checkpointId") Long checkpointId,
-                                                         @CookieValue(name = "access_token") String jwt) {
-        List<Long> ids =
+    public ResponseEntity<List<ScreenshotResDto>> getScreenshotIds(@PathVariable(name = "checkpointId") Long checkpointId,
+                                                                   @CookieValue(name = "access_token") String jwt) {
+        List<ScreenshotResDto> resDtos =
                 screenshotService.getScreenshotIdsForCheckpoint(checkpointId, jwtService.extractUserData(jwt).getId());
-        return ResponseEntity.status(HttpStatus.OK).body(ids);
+        return ResponseEntity.status(HttpStatus.OK).body(resDtos);
     }
 
     @DeleteMapping("/{id}")
