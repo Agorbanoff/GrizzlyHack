@@ -1,8 +1,5 @@
 package com.mischievous.fairies.controller;
-
-import com.mischievous.fairies.model.dto.req.CheckPointReqDto;
 import com.mischievous.fairies.model.dto.res.ScreenshotResDto;
-import com.mischievous.fairies.model.entity.ScreenshotEntity;
 import com.mischievous.fairies.service.CheckpointService;
 import com.mischievous.fairies.service.JwtService;
 import com.mischievous.fairies.service.ScreenshotService;
@@ -15,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/screenshots")
