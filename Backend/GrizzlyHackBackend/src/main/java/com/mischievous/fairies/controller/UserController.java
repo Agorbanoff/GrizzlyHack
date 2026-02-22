@@ -52,6 +52,8 @@ public class UserController {
                 .httpOnly(true)
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
+                .secure(true)
+                .sameSite("Strict")
                 .build();
     }
 }

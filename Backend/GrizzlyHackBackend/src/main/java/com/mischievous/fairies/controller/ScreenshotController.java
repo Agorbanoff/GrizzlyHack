@@ -6,12 +6,14 @@ import com.mischievous.fairies.service.CheckpointService;
 import com.mischievous.fairies.service.JwtService;
 import com.mischievous.fairies.service.ScreenshotService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -43,17 +45,23 @@ public class ScreenshotController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ScreenshotEntity> getScreenshot(@PathVariable(name = "id") Long id,
-                                                          @CookieValue(name = "access_token") String jwt) {
+    @GetMapping("/{checkpointId}/{id}")
+    public ResponseEntity<Resource> getScreenshot(@PathVariable(name = "checkpointId") Long checkpointId,
+                                                  @PathVariable(name = "id") Long id,
+                                                  @CookieValue(name = "access_token") String jwt) {
         try {
-            Optional<ScreenshotEntity> opt = screenshotService.getScreenshot(id, jwtService.extractUserData(jwt).getId());
-            return opt.map(s -> ResponseEntity.status(HttpStatus.OK).body(s))
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+            Resource resource = screenshotService.getScreenshot(checkpointId, id, jwtService.extractUserData(jwt).getId());
+            return ResponseEntity.status(HttpStatus.OK).body(resource);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+//    @GetMapping("/{checkpointId}")
+//    public ResponseEntity<List<String>> getScreenshotIds(@PathVariable(name = "checkpointId") Long checkpointId,
+//                                                         @CookieValue(name = "access_token") String jwt) {
+//        screenshotService.
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteScreenshot(@PathVariable(name = "id") Long id,

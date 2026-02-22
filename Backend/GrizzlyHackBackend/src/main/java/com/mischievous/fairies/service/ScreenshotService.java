@@ -5,15 +5,21 @@ import com.mischievous.fairies.model.entity.ScreenshotEntity;
 import com.mischievous.fairies.repository.CheckpointRepository;
 import com.mischievous.fairies.repository.ScreenshotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -56,13 +62,39 @@ public class ScreenshotService {
         Files.write(filePath, bytes);
     }
 
-    public Optional<ScreenshotEntity> getScreenshot(Long id, Long userId) {
-        Optional<ScreenshotEntity> opt = screenshotRepository.findById(id);
-        if (opt.isPresent() && opt.get().getCheckpoint().getSession().getUser().getId().equals(userId)) {
-            return opt;
+    public Resource getScreenshot(Long checkpointId, Long id, Long userId) throws MalformedURLException {
+        Optional<CheckpointEntity> checkpointEntityOptional = checkpointRepository.findById(checkpointId);
+        if (!checkpointEntityOptional.isPresent()) {
+            throw new IllegalArgumentException("Checkpoint not found");
         }
-        return Optional.empty();
+        CheckpointEntity checkpointEntity = checkpointEntityOptional.get();
+        if (!checkpointEntity.getSession().getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("Not allowed");
+        };
+        Optional<ScreenshotEntity> opt = screenshotRepository.findByCheckpoint_IdAndId(checkpointId, id);
+        if (!opt.isPresent()) {
+            throw new IllegalArgumentException("Screenshot not found");
+        }
+        ScreenshotEntity screenshotEntity = opt.get();
+        if (screenshotEntity.getCheckpoint().getSession().getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("Not allowed");
+        }
+        return new UrlResource(URI.create(screenshotEntity.getFilePath()));
     }
+
+//    public List<Long> getScreenshotIdsForCheckpoint(Long checkpointId, Long userId) {
+//        Optional<CheckpointEntity> checkpointEntityOptional = checkpointRepository.findById(checkpointId);
+//        if (!checkpointEntityOptional.isPresent()) {
+//            throw new IllegalArgumentException("Checkpoint not found");
+//        }
+//        CheckpointEntity checkpointEntity = checkpointEntityOptional.get();
+//        if (!checkpointEntity.getSession().getUser().getId().equals(userId)) {
+//            throw new IllegalArgumentException("Not allowed");
+//        }
+//        List<ScreenshotEntity> screenshots = screenshotRepository.findAllByCheckpoint_Id(checkpointId);
+//        List<Long> screenshotIds = new ArrayList<>();
+//
+//    }
 
     @Transactional
     public void deleteScreenshot(Long id, Long userId) throws IOException {
