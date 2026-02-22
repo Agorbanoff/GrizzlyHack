@@ -3,6 +3,9 @@ package com.mischievous.fairies.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 
 @Entity
@@ -25,4 +28,14 @@ public class ScreenshotEntity {
 
     @Column(name = "description", nullable = false, updatable = false)
     private String description;
+
+    @PreRemove
+    public void preRemove() {
+        try {
+            Files.deleteIfExists(Paths.get(this.filePath));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete file: " + filePath, e);
+        }
+    }
+
 }

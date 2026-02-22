@@ -3,6 +3,8 @@ package com.mischievous.fairies.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "browsing_sessions")
@@ -19,8 +21,15 @@ public class SessionEntity {
     @Column(name = "session_start", nullable = false, updatable = false)
     private Instant sessionStart;
 
-    @Column(name = "session_end", nullable = false, updatable = false)
+    @Column(name = "session_end", nullable = true, updatable = false)
     private Instant sessionEnd;
+
+    @OneToMany(mappedBy = "session",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<CheckpointEntity> checkpoints = new ArrayList<>();
+
+
 
 
 

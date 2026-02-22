@@ -1,8 +1,8 @@
 package com.mischievous.fairies.controller;
 
 import com.mischievous.fairies.security.model.JwtUser;
-import com.mischievous.fairies.model.dto.UserLoginReqDto;
-import com.mischievous.fairies.model.dto.UserSignUpReqDto;
+import com.mischievous.fairies.model.dto.req.UserLoginReqDto;
+import com.mischievous.fairies.model.dto.req.UserSignUpReqDto;
 import com.mischievous.fairies.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +20,12 @@ public class UserController {
 
     @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> signUp(@Valid @RequestBody UserSignUpReqDto reqDto) {
-        userService.signUp(reqDto);
+        String jwt = userService.signUp(reqDto);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, createJwtCookie(jwt).toString());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
+                .headers(headers)
                 .body("Successfully signed up!");
     }
 
@@ -38,7 +41,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<JwtUser> ohio(@CookieValue("access_token") String jwt) {
+    public ResponseEntity<JwtUser> me(@CookieValue(name = "access_token") String jwt) {
         JwtUser jwtUser = userService.me(jwt);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(jwtUser);

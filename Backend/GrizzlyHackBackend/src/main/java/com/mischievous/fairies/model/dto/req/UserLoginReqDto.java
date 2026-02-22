@@ -1,4 +1,4 @@
-package com.mischievous.fairies.model.dto;
+package com.mischievous.fairies.model.dto.req;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
