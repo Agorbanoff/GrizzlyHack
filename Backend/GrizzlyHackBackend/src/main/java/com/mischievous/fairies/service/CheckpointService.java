@@ -1,10 +1,9 @@
 package com.mischievous.fairies.service;
 
-import com.mischievous.fairies.model.dto.req.CheckPointReqDto;
-import com.mischievous.fairies.model.dto.res.CheckpointResDto;
+import com.mischievous.fairies.model.dto.req.CreateCheckPointReqDto;
+import com.mischievous.fairies.model.dto.res.GetCheckpointResDto;
 import com.mischievous.fairies.model.dto.res.PagedResponse;
 import com.mischievous.fairies.model.entity.CheckpointEntity;
-import com.mischievous.fairies.model.entity.ScreenshotEntity;
 import com.mischievous.fairies.model.entity.SessionEntity;
 import com.mischievous.fairies.repository.CheckpointRepository;
 import com.mischievous.fairies.repository.ScreenshotRepository;
@@ -35,19 +34,18 @@ public class CheckpointService {
     }
 
     @Transactional
-    public void createCheckpoint(CheckPointReqDto checkPointReqDto, Long userId) {
-        Optional<SessionEntity> sessionEntityOptional = sessionRepository.findByUser_IdAndId(userId, checkPointReqDto.getSessionId());
+    public Long createCheckpoint(CreateCheckPointReqDto createCheckPointReqDto, Long userId) {
+        Optional<SessionEntity> sessionEntityOptional = sessionRepository.findByUser_IdAndId(userId, createCheckPointReqDto.getSessionId());
         SessionEntity sessionEntity = sessionEntityOptional.orElseThrow(() -> new IllegalArgumentException("No active session for user"));
-        if (sessionEntity.getUser().getId().equals(userId)) {
-            CheckpointEntity checkpointEntity = new CheckpointEntity();
-            checkpointEntity.setSession(sessionEntity);
-            checkpointEntity.setUrl(checkPointReqDto.getUrl());
-            checkpointRepository.save(checkpointEntity);
-        } else {
+        if (!sessionEntity.getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("Session does not belong to user");
         }
+        CheckpointEntity checkpointEntity = new CheckpointEntity();
+        checkpointEntity.setSession(sessionEntity);
+        checkpointEntity.setUrl(createCheckPointReqDto.getUrl());
+        checkpointRepository.save(checkpointEntity);
 
-        //return
+        return checkpointEntity.getId();
     }
 
     public List<CheckpointEntity> getCheckpointsForSession(Long sessionId, Long userId) {
@@ -57,18 +55,18 @@ public class CheckpointService {
         return checkpoints;
     }
 
-    public PagedResponse<CheckpointResDto> getCheckpointsForSession(Long sessionId, Long userId, Pageable pageable) {
+    public PagedResponse<GetCheckpointResDto> getCheckpointsForSession(Long sessionId, Long userId, Pageable pageable) {
         Optional<SessionEntity> sessionOpt = sessionRepository.findByUser_IdAndId(userId, sessionId);
         Page<CheckpointEntity> checkpointEntities = checkpointRepository.findBySession_Id(sessionId, pageable);
-        List<CheckpointResDto> checkpointResDtos = new ArrayList<>();
+        List<GetCheckpointResDto> checkpointResDtos = new ArrayList<>();
         for (CheckpointEntity checkpointEntity : checkpointEntities.getContent()) {
-            CheckpointResDto checkpointResDto = new CheckpointResDto();
+            GetCheckpointResDto checkpointResDto = new GetCheckpointResDto();
             checkpointResDto.setId(checkpointEntity.getId());
             checkpointResDto.setUrl(checkpointEntity.getUrl());
             checkpointResDto.setTimestamp(checkpointEntity.getTimestamp());
             checkpointResDtos.add(checkpointResDto);
         }
-        PagedResponse<CheckpointResDto> pagedResponse = new PagedResponse<>();
+        PagedResponse<GetCheckpointResDto> pagedResponse = new PagedResponse<>();
         pagedResponse.setContent(checkpointResDtos);
         pagedResponse.setPageNumber(checkpointEntities.getNumber());
         pagedResponse.setPageSize(checkpointEntities.getSize());

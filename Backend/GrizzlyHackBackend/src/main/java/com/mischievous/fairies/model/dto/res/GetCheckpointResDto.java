@@ -3,10 +3,9 @@ package com.mischievous.fairies.model.dto.res;
 import lombok.Data;
 
 import java.time.Instant;
-import java.util.List;
 
 @Data
-public class CheckpointResDto {
+public class GetCheckpointResDto {
     private Long id;
     private String url;
     private Instant timestamp;

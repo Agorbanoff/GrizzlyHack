@@ -2,11 +2,10 @@ package com.mischievous.fairies.model.dto.res;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-public class StartSessionResDto {
+public class CreateCheckpointResDto {
     private String message;
-    private Long sessionId;
+    private Long checkpointId;
 }

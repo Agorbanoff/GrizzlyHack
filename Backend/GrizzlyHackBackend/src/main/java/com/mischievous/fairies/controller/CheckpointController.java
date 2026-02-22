@@ -1,21 +1,17 @@
 package com.mischievous.fairies.controller;
 
-import com.mischievous.fairies.model.dto.req.CheckPointReqDto;
-import com.mischievous.fairies.model.dto.res.CheckpointResDto;
+import com.mischievous.fairies.model.dto.req.CreateCheckPointReqDto;
+import com.mischievous.fairies.model.dto.res.GetCheckpointResDto;
+import com.mischievous.fairies.model.dto.res.CreateCheckpointResDto;
 import com.mischievous.fairies.model.dto.res.PagedResponse;
-import com.mischievous.fairies.model.entity.CheckpointEntity;
-import com.mischievous.fairies.model.entity.ScreenshotEntity;
 import com.mischievous.fairies.service.CheckpointService;
 import com.mischievous.fairies.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/checkpoints")
@@ -30,11 +26,13 @@ public class CheckpointController {
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<Void> createCheckpoint(@RequestBody CheckPointReqDto checkPointReqDto,
-                                                 @CookieValue(name = "access_token") String jwt) {
+    public ResponseEntity<CreateCheckpointResDto> createCheckpoint(@RequestBody CreateCheckPointReqDto createCheckPointReqDto,
+                                                                   @CookieValue(name = "access_token") String jwt) {
         try {
-            checkpointService.createCheckpoint(checkPointReqDto, jwtService.extractUserData(jwt).getId());
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            Long checkpointId = checkpointService.createCheckpoint(createCheckPointReqDto, jwtService.extractUserData(jwt).getId());
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(new CreateCheckpointResDto("Checkpoint created successfully", checkpointId));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
@@ -43,11 +41,11 @@ public class CheckpointController {
     }
 
     @GetMapping("/{sessionId}")
-    public ResponseEntity<PagedResponse<CheckpointResDto>> getCheckpointsForSession(@PathVariable(name = "sessionId") Long sessionId,
-                                                                                    @CookieValue(name = "access_token") String jwt,
-                                                                                    @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+    public ResponseEntity<PagedResponse<GetCheckpointResDto>> getCheckpointsForSession(@PathVariable(name = "sessionId") Long sessionId,
+                                                                                       @CookieValue(name = "access_token") String jwt,
+                                                                                       @PageableDefault(size = 20, sort = "id") Pageable pageable) {
         try {
-            PagedResponse<CheckpointResDto> pagedResponse =
+            PagedResponse<GetCheckpointResDto> pagedResponse =
                     checkpointService.getCheckpointsForSession(sessionId, jwtService.extractUserData(jwt).getId(), pageable);
             return ResponseEntity.status(HttpStatus.OK).body(pagedResponse);
         } catch (Exception e) {
