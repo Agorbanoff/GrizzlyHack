@@ -42,3 +42,39 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Sonner base */
+[data-sonner-toast] {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-foreground) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Fix title/description contrast */
+[data-sonner-toast] [data-title] {
+  color: var(--color-foreground) !important;
+  opacity: 1 !important;
+  font-weight: 600;
+}
+
+[data-sonner-toast] [data-description] {
+  color: var(--color-muted) !important;
+  opacity: 1 !important;
+}
+
+/* Buttons */
+[data-sonner-toast] button {
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+}
+
+/* Optional: make success/error accents match your palette */
+[data-sonner-toast][data-type="success"] {
+  border-color: color-mix(in oklab, var(--color-primary) 40%, var(--color-border)) !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  border-color: color-mix(in oklab, var(--color-accent) 40%, var(--color-border)) !important;
+}
