@@ -40,7 +40,7 @@ public class ScreenshotService {
     }
 
     @Transactional
-    public void saveScreenshot(Long userId, MultipartFile file, Long checkpointId) throws IOException {
+    public ScreenshotResDto saveScreenshot(Long userId, MultipartFile file, Long checkpointId) throws IOException {
         Optional<CheckpointEntity> checkpointEntityOptional = checkpointRepository.findById(checkpointId);
         CheckpointEntity checkpointEntity = checkpointEntityOptional.orElseThrow(() -> new IllegalArgumentException("Checkpoint not found"));
         if (checkpointEntity.getSession().getUser().getId().equals(userId)) {
@@ -53,6 +53,7 @@ public class ScreenshotService {
             screenshotRepository.save(screenshotEntity);
             checkpointEntity.getScreenshots().add(screenshotEntity);
             saveFile(file, filename);
+            return new ScreenshotResDto(screenshotEntity.getId());
         } else {
             throw new IllegalArgumentException("Not allowed");
         }
