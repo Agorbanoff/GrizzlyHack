@@ -51,7 +51,8 @@ public class SecurityConfig {
     @Primary
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration frontendConfig = new CorsConfiguration();
-        frontendConfig.setAllowedOrigins(List.of("http://localhost:5173"));
+        frontendConfig.setAllowedOrigins(List.of("http://localhost:5173",
+                "chrome-extension://lmbnlagppmbomcffmbkmimhpjdkgdpid"));
         frontendConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         frontendConfig.setAllowedHeaders(List.of("*"));
         frontendConfig.setAllowCredentials(true);
