@@ -1,7 +1,7 @@
 "use client"
 
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from "recharts"
-import Navbar from "../components/Navbar"
+import Navbar from "../../components/Navbar"
 
 export default function Statistics() {
   const data = [
