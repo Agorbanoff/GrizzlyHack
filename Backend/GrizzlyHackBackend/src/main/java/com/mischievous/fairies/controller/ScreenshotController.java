@@ -6,6 +6,7 @@ import com.mischievous.fairies.service.ScreenshotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,13 +29,15 @@ public class ScreenshotController {
     }
 
     @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<Void> saveScreenshot(@CookieValue(name = "access_token") String jwt,
+    public ResponseEntity<ScreenshotResDto> saveScreenshot(@CookieValue(name = "access_token") String jwt,
                                                @RequestParam(value = "file") MultipartFile file,
                                                @RequestParam(value = "checkpoint_id") Long checkpointId) {
         try {
             Long userId = jwtService.extractUserData(jwt).getId();
-            screenshotService.saveScreenshot(userId, file, checkpointId);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            ScreenshotResDto resDto = screenshotService.saveScreenshot(userId, file, checkpointId);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(resDto);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
@@ -42,14 +45,13 @@ public class ScreenshotController {
         }
     }
 
-    @GetMapping("/{checkpointId}/{id}")
-    public ResponseEntity<Resource> getScreenshot(@PathVariable(name = "checkpointId") Long checkpointId,
-                                                  @PathVariable(name = "id") Long id,
+    @GetMapping("/{id}")
+    public ResponseEntity<Resource> getScreenshot(@PathVariable(name = "id") Long id,
                                                   @CookieValue(name = "access_token") String jwt) {
         try {
             Long userId = jwtService.extractUserData(jwt).getId();
 
-            Resource resource = screenshotService.getScreenshot(checkpointId, id, userId);
+            Resource resource = screenshotService.getScreenshot(id, userId);
 
             return ResponseEntity
                     .ok()
@@ -59,12 +61,13 @@ public class ScreenshotController {
 
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @GetMapping("/{checkpointId}")
+    @GetMapping("/all/{checkpointId}")
     public ResponseEntity<List<ScreenshotResDto>> getScreenshotIds(@PathVariable(name = "checkpointId") Long checkpointId,
                                                                    @CookieValue(name = "access_token") String jwt) {
         List<ScreenshotResDto> resDtos =

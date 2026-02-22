@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,7 +42,7 @@ public class ScreenshotService {
     }
 
     @Transactional
-    public void saveScreenshot(Long userId, MultipartFile file, Long checkpointId) throws IOException {
+    public ScreenshotResDto saveScreenshot(Long userId, MultipartFile file, Long checkpointId) throws IOException {
         Optional<CheckpointEntity> checkpointEntityOptional = checkpointRepository.findById(checkpointId);
         CheckpointEntity checkpointEntity = checkpointEntityOptional.orElseThrow(() -> new IllegalArgumentException("Checkpoint not found"));
         if (checkpointEntity.getSession().getUser().getId().equals(userId)) {
@@ -54,6 +55,7 @@ public class ScreenshotService {
             screenshotRepository.save(screenshotEntity);
             checkpointEntity.getScreenshots().add(screenshotEntity);
             saveFile(file, filename);
+            return new ScreenshotResDto(screenshotEntity.getId());
         } else {
             throw new IllegalArgumentException("Not allowed");
         }
@@ -69,17 +71,16 @@ public class ScreenshotService {
         Files.write(filePath, encrypted);
     }
 
-    public Resource getScreenshot(Long checkpointId, Long id, Long userId) throws IOException {
 
-        CheckpointEntity checkpointEntity = checkpointRepository.findById(checkpointId)
-                .orElseThrow(() -> new IllegalArgumentException("Checkpoint not found"));
+    public Resource getScreenshot(Long id, Long userId) throws IOException {
+        Optional<ScreenshotEntity> opt = screenshotRepository.findById(id);
+        if (!opt.isPresent()) {
+            throw new IllegalArgumentException("Screenshot not found");
 
-        if (!checkpointEntity.getSession().getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("Not allowed");
         }
 
         ScreenshotEntity screenshotEntity = screenshotRepository
-                .findByCheckpoint_IdAndId(checkpointId, id)
+                .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Screenshot not found"));
 
         if (!screenshotEntity.getCheckpoint().getSession().getUser().getId().equals(userId)) {
