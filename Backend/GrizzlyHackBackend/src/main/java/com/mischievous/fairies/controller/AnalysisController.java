@@ -12,11 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -33,17 +31,22 @@ public class AnalysisController {
 
     @GetMapping("/sessions/longest")
     public ResponseEntity<PagedResponse<SessionAnalysisDto>> getSessionsLongest(
+                @RequestParam(name = "from") Instant from,
+                @RequestParam(name = "to") Instant to,
                 @PageableDefault(size = 20, sort = "id") Pageable pageable,
                 @CookieValue(name = "access_token") String jwt) {
          PagedResponse<SessionAnalysisDto> pagedResponse =
-                 analysisService.getLongestSessions(jwtService.extractUserData(jwt).getId(), pageable);
+                 analysisService.getLongestSessions(jwtService.extractUserData(jwt).getId(), pageable,
+                         from, to);
             return ResponseEntity.status(HttpStatus.OK).body(pagedResponse);
     }
 
     @GetMapping("/web-activities/most-time-spent")
-    public ResponseEntity<List<WebActivityAnalysisDto>> getWebActivitiesMostTimeSpent(@CookieValue(name = "access_token") String jwt) {
+    public ResponseEntity<List<WebActivityAnalysisDto>> getWebActivitiesMostTimeSpent(@CookieValue(name = "access_token") String jwt,
+                                                                                      @RequestParam(name = "from") Instant from,
+                                                                                      @RequestParam(name = "to") Instant to) {
          return ResponseEntity
                  .status(HttpStatus.OK)
-                 .body(analysisService.getWebActivitiesMostTimeSpent(jwtService.extractUserData(jwt).getId())) ;
+                 .body(analysisService.getWebActivitiesMostTimeSpent(jwtService.extractUserData(jwt).getId(), from, to));
     }
 }

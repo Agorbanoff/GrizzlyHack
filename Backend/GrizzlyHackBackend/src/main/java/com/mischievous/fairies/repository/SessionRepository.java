@@ -24,12 +24,14 @@ public interface SessionRepository extends JpaRepository<SessionEntity, Long> {
     FROM sessions s
     WHERE s.user_id = :userId
       AND s.session_start >= :from
+      AND s.session_start <= :to
     ORDER BY EXTRACT(EPOCH FROM (s.session_end - s.session_start)) DESC
     LIMIT :limit OFFSET :offset
     """,
             nativeQuery = true)
     List<SessionEntity> findLongestSessionsSince(@Param("userId") Long userId,
                                                  @Param("from") Instant from,
+                                                 @Param("to") Instant to,
                                                  @Param("limit") int limit,
                                                  @Param("offset") int offset
     );
@@ -40,7 +42,10 @@ public interface SessionRepository extends JpaRepository<SessionEntity, Long> {
     FROM sessions s
     WHERE s.user_id = :userId
       AND s.session_start >= :from
+      AND s.session_start <= :to
     """,
             nativeQuery = true)
-    long countLongestSessionsSince(@Param("userId") Long userId, @Param("from") Instant from);
+    long countLongestSessionsSince(@Param("userId") Long userId,
+                                   @Param("from") Instant from,
+                                   @Param("to") Instant to);
 }
