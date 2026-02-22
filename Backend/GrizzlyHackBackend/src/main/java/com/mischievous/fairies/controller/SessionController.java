@@ -3,6 +3,7 @@ package com.mischievous.fairies.controller;
 import com.mischievous.fairies.common.exception.CustomException;
 import com.mischievous.fairies.model.dto.res.PagedResponse;
 import com.mischievous.fairies.model.dto.res.SessionResDto;
+import com.mischievous.fairies.model.dto.res.StartSessionResDto;
 import com.mischievous.fairies.model.entity.SessionEntity;
 import com.mischievous.fairies.service.JwtService;
 import com.mischievous.fairies.service.SessionService;
@@ -29,11 +30,11 @@ public class SessionController {
 
 
     @PostMapping("/start")
-    public ResponseEntity<Long> createSession(@CookieValue(name = "access_token") String jwt) {
+    public ResponseEntity<StartSessionResDto> createSession(@CookieValue(name = "access_token") String jwt) {
         Long id = sessionService.startSession(jwtService.extractUserData(jwt).getId());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(id);
+                .body(new StartSessionResDto("Session started successfully ", id));
     }
 
     @PostMapping("/end")

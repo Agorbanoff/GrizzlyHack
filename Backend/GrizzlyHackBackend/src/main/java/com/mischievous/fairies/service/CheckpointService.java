@@ -47,6 +47,7 @@ public class CheckpointService {
             throw new IllegalArgumentException("Session does not belong to user");
         }
 
+        //return
     }
 
     public List<CheckpointEntity> getCheckpointsForSession(Long sessionId, Long userId) {

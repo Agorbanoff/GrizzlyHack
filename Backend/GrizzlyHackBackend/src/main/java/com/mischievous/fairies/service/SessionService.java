@@ -3,6 +3,7 @@ package com.mischievous.fairies.service;
 import com.mischievous.fairies.common.exception.CustomException;
 import com.mischievous.fairies.model.dto.res.PagedResponse;
 import com.mischievous.fairies.model.dto.res.SessionResDto;
+import com.mischievous.fairies.model.dto.res.StartSessionResDto;
 import com.mischievous.fairies.model.entity.SessionEntity;
 import com.mischievous.fairies.model.entity.UserEntity;
 import com.mischievous.fairies.repository.SessionRepository;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
