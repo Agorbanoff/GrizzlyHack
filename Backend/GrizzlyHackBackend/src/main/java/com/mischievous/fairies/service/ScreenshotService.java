@@ -51,7 +51,6 @@ public class ScreenshotService {
             screenshotEntity.setCheckpoint(checkpointEntity);
             screenshotEntity.setFilePath(storageRoot.resolve(filename).toString());
             screenshotEntity.setTimestamp(Instant.now());
-            screenshotEntity.setDescription("Uploaded: " + file.getOriginalFilename());
             screenshotRepository.save(screenshotEntity);
             checkpointEntity.getScreenshots().add(screenshotEntity);
             saveFile(file, filename);

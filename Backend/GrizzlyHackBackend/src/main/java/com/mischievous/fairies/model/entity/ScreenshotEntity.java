@@ -26,9 +26,6 @@ public class ScreenshotEntity {
     @Column(name = "file_path", nullable = false, updatable = false, unique = true)
     private String filePath;
 
-    @Column(name = "description", nullable = false, updatable = false)
-    private String description;
-
     @PreRemove
     public void preRemove() {
         try {

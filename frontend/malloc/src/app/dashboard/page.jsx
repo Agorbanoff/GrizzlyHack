@@ -1,9 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
+<<<<<<< HEAD
 import { Link } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import SessionCard from "../components/SessionCard"
+=======
+import Navbar from "../../components/Navbar"
+
+>>>>>>> f55527de87d33922501a7bf6df60579f69d18cff
 
 export default function SessionsPage() {
   const [sessions, setSessions] = useState([])

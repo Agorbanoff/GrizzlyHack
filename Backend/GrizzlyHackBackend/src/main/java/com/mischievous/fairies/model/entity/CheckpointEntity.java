@@ -15,12 +15,6 @@ public class CheckpointEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String title;
-
-    @Column
-    private String url;
-
     @Column(length = 2000)
     private String description;
 
@@ -34,6 +28,8 @@ public class CheckpointEntity {
     @OneToMany(mappedBy = "checkpoint", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ScreenshotEntity> screenshots = new ArrayList<>();
 
+    @OneToMany(mappedBy = "checkpoint", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WebActivityEntity> webActivities = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
