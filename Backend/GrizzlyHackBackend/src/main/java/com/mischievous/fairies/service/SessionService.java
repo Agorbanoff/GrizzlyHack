@@ -28,7 +28,7 @@ public class SessionService {
         this.userRepository = userRepository;
     }
 
-    public void startSession(Long userId) {
+    public Long startSession(Long userId) {
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
         UserEntity userEntity = userEntityOptional.orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -37,6 +37,8 @@ public class SessionService {
         sessionEntity.setSessionStart(Instant.now());
         sessionEntity.setSessionEnd(sessionEntity.getSessionStart().plusSeconds(300));
         sessionRepository.save(sessionEntity);
+
+        return sessionEntity.getId();
     }
 
     public void keepAlive(Long sessionId) {

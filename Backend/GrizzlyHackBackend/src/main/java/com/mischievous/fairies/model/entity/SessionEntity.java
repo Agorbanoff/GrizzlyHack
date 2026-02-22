@@ -29,10 +29,6 @@ public class SessionEntity {
             orphanRemoval = true)
     private List<CheckpointEntity> checkpoints = new ArrayList<>();
 
-
-
-
-
     @PrePersist
     private void prePersist() {
         if (this.sessionStart == null) {

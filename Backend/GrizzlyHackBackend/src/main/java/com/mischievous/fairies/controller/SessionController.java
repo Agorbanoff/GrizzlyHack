@@ -29,9 +29,11 @@ public class SessionController {
 
 
     @PostMapping("/start")
-    public ResponseEntity<Void> createSession(@CookieValue(name = "access_token") String jwt) {
-        sessionService.startSession(jwtService.extractUserData(jwt).getId());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<Long> createSession(@CookieValue(name = "access_token") String jwt) {
+        Long id = sessionService.startSession(jwtService.extractUserData(jwt).getId());
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(id);
     }
 
     @PostMapping("/end")
